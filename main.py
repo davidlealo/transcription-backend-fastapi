@@ -7,7 +7,13 @@ app = FastAPI()
 
 # Cargar modelos
 whisper_model = load_model("base")
-diarization_pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization")
+huggingface_token = os.getenv("HUGGINGFACE_TOKEN")  # Obtén el token desde la variable de entorno
+
+# Pipeline de diarización con autenticación
+diarization_pipeline = Pipeline.from_pretrained(
+    "pyannote/speaker-diarization",
+    use_auth_token=huggingface_token
+)
 
 # Carpeta temporal
 os.makedirs("audio", exist_ok=True)

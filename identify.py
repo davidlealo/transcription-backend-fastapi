@@ -1,10 +1,25 @@
+from fastapi import FastAPI, File, UploadFile
+from pyannote.audio import Pipeline
+from whisper import load_model
 import spacy
+import os
 
-nlp = spacy.load("en_core_web_sm")  # Modelo de lenguaje en inglés
+app = FastAPI()
+
+# Modelos
+nlp = spacy.load("en_core_web_sm")
+whisper_model = load_model("base")
+huggingface_token = os.getenv("HUGGINGFACE_TOKEN")
+
+# Pipeline de diarización
+diarization_pipeline = Pipeline.from_pretrained(
+    "pyannote/speaker-diarization",
+    use_auth_token=huggingface_token
+)
 
 @app.post("/associate_person/")
 async def associate_person(file: UploadFile = File(...)):
-    # Procesar audio (como antes)
+    # Procesar audio
     file_path = f"audio/{file.filename}"
     with open(file_path, "wb") as temp_file:
         temp_file.write(await file.read())
