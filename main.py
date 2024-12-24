@@ -1,9 +1,19 @@
 from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from whisper import load_model
 from pyannote.audio import Pipeline
 import os
 
 app = FastAPI()
+
+# Configurar CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Cambia "*" por una lista específica de orígenes en producción
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Cargar modelos
 whisper_model = load_model("base")
@@ -15,7 +25,7 @@ diarization_pipeline = Pipeline.from_pretrained(
     use_auth_token=huggingface_token
 )
 
-# Carpeta temporal
+# Carpeta temporal para guardar archivos de audio
 os.makedirs("audio", exist_ok=True)
 
 @app.post("/process_audio/")
