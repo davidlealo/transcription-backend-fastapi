@@ -2,7 +2,11 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from whisper import load_model
 from pyannote.audio import Pipeline
+from dotenv import load_dotenv
 import os
+
+# Cargar variables de entorno
+load_dotenv()
 
 app = FastAPI()
 
@@ -17,7 +21,8 @@ app.add_middleware(
 
 # Cargar modelos
 whisper_model = load_model("base")
-huggingface_token = os.getenv("HUGGINGFACE_TOKEN")  # Obtén el token desde la variable de entorno
+huggingface_token = os.getenv("HUGGINGFACE_TOKEN")
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
 # Pipeline de diarización con autenticación
 diarization_pipeline = Pipeline.from_pretrained(
@@ -30,6 +35,9 @@ os.makedirs("audio", exist_ok=True)
 
 @app.post("/process_audio/")
 async def process_audio(file: UploadFile = File(...)):
+    print(f"HUGGINGFACE_TOKEN: {huggingface_token}")
+    print(f"OPENAI_API_KEY: {openai_api_key}")
+    
     # Guardar audio temporal
     file_path = f"audio/{file.filename}"
     with open(file_path, "wb") as temp_file:
